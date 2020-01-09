@@ -188,7 +188,7 @@ def setup_package():
             generate_cython(root, "spacy")
 
         setup(
-            name="spacy",
+            name="spacyLambda",
             packages=PACKAGES,
             version=about["__version__"],
             ext_modules=ext_modules,

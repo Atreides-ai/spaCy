@@ -1,3 +1,4 @@
+PCK_DIR=spacy
 SHELL := /bin/bash
 sha = $(shell "git" "rev-parse" "--short" "HEAD")
 version = $(shell "bin/get-version.sh")
@@ -26,3 +27,18 @@ clean : setup.py
 	source env3.6/bin/activate
 	rm -rf dist/*
 	python setup.py clean --all
+
+deploy_package:
+	twine upload --repository fury dist/* --verbose
+
+clean_package:
+	rm -r dist || echo 'dist removed'
+	rm -r ${PCK_DIR}.egg-info || echo 'egg-info removed'
+
+build_package: clean_package
+	python setup.py sdist
+
+package: build_package deploy_package
+
+install:
+	pip install -r requirements.txt
