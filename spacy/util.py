@@ -13,8 +13,8 @@ import functools
 import itertools
 import numpy.random
 import srsly
-import catalogue
 import sys
+import catalogue
 
 try:
     import jsonschema
@@ -31,17 +31,20 @@ from .compat import cupy, CudaStream, path2str, basestring_, unicode_
 from .compat import import_file
 from .errors import Errors, Warnings, deprecation_warning
 
-
 _data_path = Path(__file__).parent / "data"
 _PRINT_ENV = False
 
 
 class registry(object):
     languages = catalogue.create("spacy", "languages", entry_points=True)
-    architectures = catalogue.create("spacy", "architectures", entry_points=True)
+    architectures = catalogue.create("spacy",
+                                     "architectures",
+                                     entry_points=True)
     lookups = catalogue.create("spacy", "lookups", entry_points=True)
     factories = catalogue.create("spacy", "factories", entry_points=True)
-    displacy_colors = catalogue.create("spacy", "displacy_colors", entry_points=True)
+    displacy_colors = catalogue.create("spacy",
+                                       "displacy_colors",
+                                       entry_points=True)
 
 
 def set_env_log(value):
@@ -296,7 +299,8 @@ def get_component_name(component):
         return component.name
     if hasattr(component, "__name__"):
         return component.__name__
-    if hasattr(component, "__class__") and hasattr(component.__class__, "__name__"):
+    if hasattr(component, "__class__") and hasattr(component.__class__,
+                                                   "__name__"):
         return component.__class__.__name__
     return repr(component)
 
@@ -314,7 +318,9 @@ def get_async(stream, numpy_array):
     if cupy is None:
         return numpy_array
     else:
-        array = cupy.ndarray(numpy_array.shape, order="C", dtype=numpy_array.dtype)
+        array = cupy.ndarray(numpy_array.shape,
+                             order="C",
+                             dtype=numpy_array.dtype)
         array.set(numpy_array, stream=stream)
         return array
 
@@ -345,8 +351,7 @@ def read_regex(path):
     with path.open(encoding="utf8") as file_:
         entries = file_.read().split("\n")
     expression = "|".join(
-        ["^" + re.escape(piece) for piece in entries if piece.strip()]
-    )
+        ["^" + re.escape(piece) for piece in entries if piece.strip()])
     return re.compile(expression)
 
 
@@ -359,11 +364,11 @@ def compile_prefix_regex(entries):
     if "(" in entries:
         # Handle deprecated data
         expression = "|".join(
-            ["^" + re.escape(piece) for piece in entries if piece.strip()]
-        )
+            ["^" + re.escape(piece) for piece in entries if piece.strip()])
         return re.compile(expression)
     else:
-        expression = "|".join(["^" + piece for piece in entries if piece.strip()])
+        expression = "|".join(
+            ["^" + piece for piece in entries if piece.strip()])
         return re.compile(expression)
 
 
@@ -417,11 +422,14 @@ def update_exc(base_exceptions, *addition_dicts):
     exc = dict(base_exceptions)
     for additions in addition_dicts:
         for orth, token_attrs in additions.items():
-            if not all(isinstance(attr[ORTH], unicode_) for attr in token_attrs):
-                raise ValueError(Errors.E055.format(key=orth, orths=token_attrs))
+            if not all(
+                    isinstance(attr[ORTH], unicode_) for attr in token_attrs):
+                raise ValueError(
+                    Errors.E055.format(key=orth, orths=token_attrs))
             described_orth = "".join(attr[ORTH] for attr in token_attrs)
             if orth != described_orth:
-                raise ValueError(Errors.E056.format(key=orth, orths=described_orth))
+                raise ValueError(
+                    Errors.E056.format(key=orth, orths=described_orth))
         exc.update(additions)
     exc = expand_exc(exc, "'", "’")
     return exc
@@ -436,7 +444,6 @@ def expand_exc(excs, search, replace):
     replace (unicode): Replacement.
     RETURNS (dict): Combined tokenizer exceptions.
     """
-
     def _fix_token(token, search, replace):
         fixed = dict(token)
         fixed[ORTH] = fixed[ORTH].replace(search, replace)
@@ -495,7 +502,6 @@ def compounding(start, stop, compound):
       >>> assert next(sizes) == 1 * 1.5
       >>> assert next(sizes) == 1.5 * 1.5
     """
-
     def clip(value):
         return max(value, stop) if (start > stop) else min(value, stop)
 
@@ -518,7 +524,6 @@ def stepping(start, stop, steps):
       >>> assert next(sizes) == 1 * (200.-1.) / 100
       >>> assert next(sizes) == 1 + (200.-1.) / 100 + (200.-1.) / 100
     """
-
     def clip(value):
         return max(value, stop) if (start > stop) else min(value, stop)
 
@@ -732,7 +737,9 @@ def validate_json(data, validator):
             err_path = ""
         msg = err.message + " " + err_path
         if err.context:  # Error has suberrors, e.g. if schema uses anyOf
-            suberrs = ["  - {}".format(suberr.message) for suberr in err.context]
+            suberrs = [
+                "  - {}".format(suberr.message) for suberr in err.context
+            ]
             msg += ":\n{}".format("".join(suberrs))
         errors.append(msg)
     return errors
@@ -746,7 +753,7 @@ def get_serialization_exclude(serializers, exclude, kwargs):
     # Split to support file names like meta.json
     options = [name.split(".")[0] for name in serializers]
     for key, value in kwargs.items():
-        if key in ("vocab",) and value is False:
+        if key in ("vocab", ) and value is False:
             deprecation_warning(Warnings.W015.format(arg=key))
             exclude.append(key)
         elif key.split(".")[0] in options:
@@ -760,7 +767,6 @@ class SimpleFrozenDict(dict):
     function or method argument (for arguments that should default to empty
     dictionary). Will raise an error if user or spaCy attempts to add to dict.
     """
-
     def __setitem__(self, key, value):
         raise NotImplementedError(Errors.E095)
 
