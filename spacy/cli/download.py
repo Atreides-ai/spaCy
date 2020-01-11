@@ -16,7 +16,8 @@ from .. import about
 @plac.annotations(
     model=("Model to download (shortcut or name)", "positional", None, str),
     direct=("Force direct download of name + version", "flag", "d", bool),
-    pip_args=("Additional arguments to be passed to `pip install` on model install"),
+    pip_args=(
+        "Additional arguments to be passed to `pip install` on model install"),
 )
 def download(model, direct=False, *pip_args):
     """
@@ -31,9 +32,8 @@ def download(model, direct=False, *pip_args):
             "(maybe because you've built from source?), so installing the "
             "model dependencies would cause spaCy to be downloaded, which "
             "probably isn't what you want. If the model package has other "
-            "dependencies, you'll have to install them manually."
-        )
-        pip_args = pip_args + ("--no-deps",)
+            "dependencies, you'll have to install them manually.")
+        pip_args = pip_args + ("--no-deps", )
     dl_tpl = "{m}-{v}/{m}-{v}.tar.gz#egg={m}=={v}"
     if direct:
         components = model.split("-")
@@ -50,7 +50,8 @@ def download(model, direct=False, *pip_args):
             sys.exit(dl)
         msg.good(
             "Download and installation successful",
-            "You can now load the model via spacy.load('{}')".format(model_name),
+            "You can now load the model via spacy.load('{}')".format(
+                model_name),
         )
         # Only create symlink if the model is installed via a shortcut like 'en'.
         # There's no real advantage over an additional symlink for en_core_web_sm
@@ -111,7 +112,8 @@ def get_compatibility():
     comp_table = get_json(about.__compatibility__, "compatibility table")
     comp = comp_table["spacy"]
     if version not in comp:
-        msg.fail("No compatible models found for v{} of spaCy".format(version), exits=1)
+        msg.fail("No compatible models found for v{} of spaCy".format(version),
+                 exits=1)
     return comp[version]
 
 
